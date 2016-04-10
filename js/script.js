@@ -1,8 +1,13 @@
 var chessBoard = [],
-    me = true;
+    me = true,
+    over = false;
 
 //赢法数组
 var wins = [];
+
+//赢法的统计数组
+var myWin = [],
+    computerWin = [];
 
 for(var i=0;i<15;i++){
     chessBoard[i] = [];
@@ -11,46 +16,51 @@ for(var i=0;i<15;i++){
     }
 }
 
-//for(i=0;i<15;i++){
-//    wins[i] = [];
-//    for(j=0;j<15;j++){
-//        wins[i][j] = [];
-//    }
-//}
-//
-//var count = 0;
-//for(i=0;i<15;i++){
-//    for(j=0;j<11;j++){
-//        for(var k=0;k<5;k++){
-//            wins[i][j+k][count] = true;
-//        }
-//        count++;
-//    }
-//}
-//for(i=0;i<15;i++){
-//    for(j=0;j<11;j++){
-//        for(k=0;k<5;k++){
-//            wins[j+k][i][count] = true;
-//        }
-//        count++;
-//    }
-//}
-//for(i=0;i<11;i++){
-//    for(j=0;j<11;j++){
-//        for(k=0;k<5;k++){
-//            wins[i+k][j+k][count] = true;
-//        }
-//        count++;
-//    }
-//}
-//for(i=0;i<15;i++){
-//    for(j=14;j>3;j--){
-//        for(k=0;k<5;k++){
-//            wins[i+k][j-k][count] = true;
-//        }
-//        count++;
-//    }
-//}
+for(i=0;i<15;i++){
+    wins[i] = [];
+    for(j=0;j<15;j++){
+        wins[i][j] = [];
+    }
+}
+
+var count = 0;
+for(i=0;i<15;i++){
+    for(j=0;j<11;j++){
+        for(var k=0;k<5;k++){
+            wins[i][j+k][count] = true;
+        }
+        count++;
+    }
+}
+for(i=0;i<15;i++){
+    for(j=0;j<11;j++){
+        for(k=0;k<5;k++){
+            wins[j+k][i][count] = true;
+        }
+        count++;
+    }
+}
+for(i=0;i<11;i++){
+    for(j=0;j<11;j++){
+        for(k=0;k<5;k++){
+            wins[i+k][j+k][count] = true;
+        }
+        count++;
+    }
+}
+for(i=0;i<11;i++){
+    for(j=14;j>3;j--){
+        for(k=0;k<5;k++){
+            wins[i+k][j-k][count] = true;
+        }
+        count++;
+    }
+}
+
+for(i=0;i<count;i++){
+    myWin[i] = 0;
+    computerWin[i] = 0;
+}
 
 var chess = document.getElementById('chess'),
     context = chess.getContext('2d');
@@ -92,6 +102,9 @@ var oneStep = function(i,j,me){
 };
 
 chess.onclick = function(e){
+    if(over){
+        return;
+    }
     var x = e.offsetX,
         y = e.offsetY,
         i = Math.floor(x/30),
@@ -103,144 +116,123 @@ chess.onclick = function(e){
         }else{
             chessBoard[i][j] = 2;
         }
-        radar(i,j);
+        //radar(i,j);
         me = !me;
+        for(var k=0;k<count;k++){
+            if(wins[i][j][k]){
+                myWin[k]++;
+                computerWin[k] = 6;
+                if(myWin[k]==5){
+                    alert('you win');
+                    over = true;
+                }
+            }
+        }
     }
 };
 
 //判断胜负
-function radar(i,j){
-    var n,count;
 
-    ew(i,j);
-    sn(i,j);
-    es_wn(i,j);
-    en_ws(i,j);
-
-    function isWin(c){
-        if(c>=5){
-            console.log('win');
-        }
-    }
-    function ew(i,j){
-        count=1;
-        for(n=1;n<5;n++){
-            if(i+n<15){
-                if(chessBoard[i][j]==chessBoard[i+n][j]){
-                    count++;
-                }else{
-                    break;
-                }
-            }
-        }
-        for(n=1;n<5;n++){
-            if(i-n>=0){
-                if(chessBoard[i][j]==chessBoard[i-n][j]){
-                    count++;
-                }else{
-                    break;
-                }
-            }
-        }
-        isWin(count);
-    }
-    function sn(i,j){
-        count=1;
-        for(n=1;n<5;n++){
-            if(j+n<15){
-                if(chessBoard[i][j]==chessBoard[i][j+n]){
-                    count++;
-                }else{
-                    break;
-                }
-            }
-        }
-        for(n=1;n<5;n++){
-            if(j-n>=0){
-                if(chessBoard[i][j]==chessBoard[i][j-n]){
-                    count++;
-                }else{
-                    break;
-                }
-            }
-        }
-        isWin(count);
-    }
-    function es_wn(i,j){
-        count=1;
-        for(n=1;n<5;n++){
-            if(i+n<15&&j+n<15){
-                if(chessBoard[i][j]==chessBoard[i+n][j+n]){
-                    count++;
-                }else{
-                    break;
-                }
-            }
-        }
-        for(n=1;n<5;n++){
-            if(i-n>=0&&j-n>=0){
-                if(chessBoard[i][j]==chessBoard[i-n][j-n]){
-                    count++;
-                }else{
-                    break;
-                }
-            }
-        }
-        isWin(count);
-    }
-    function en_ws(i,j){
-        count=1;
-        for(n=1;n<5;n++){
-            if(i+n<15&&j-n>=0){
-                if(chessBoard[i][j]==chessBoard[i+n][j-n]){
-                    count++;
-                }else{
-                    break;
-                }
-            }
-        }
-        for(n=1;n<5;n++){
-            if(i-n>=0&&j+n<15){
-                if(chessBoard[i][j]==chessBoard[i-n][j+n]){
-                    count++;
-                }else{
-                    break;
-                }
-            }
-        }
-        console.log((me?'黑':'白')+'/'+count);
-        isWin(count);
-    }
-    //for(n=1,count=1;n<5;n++){
-    //    if(i+n<15){
-    //        if(chessBoard[i][j]==chessBoard[i+n][j]){
-    //            count++;
-    //        }
-    //    }
-    //    //if(i-n>=0){
-    //    //    if(chessBoard[i][j]==chessBoard[i-n][j]){
-    //    //        count++;
-    //    //    }
-    //    //}
-    //    console.log((me?'黑':'白')+'-'+count);
-    //    if(count>=5){
-    //        console.log('win');
-    //    }
-    //}
-    //for(n=1,count=1;n<5;n++){
-    //    if(j+n<15){
-    //        if(chessBoard[i][j]==chessBoard[i][j+n]){
-    //            count++;
-    //        }
-    //    }
-    //    if(j-n>=0){
-    //        if(chessBoard[i][j]==chessBoard[i][j-n]){
-    //            count++;
-    //        }
-    //    }
-    //    console.log((me?'黑':'白')+'|'+count);
-    //    if(count>=5){
-    //        console.log('win');
-    //    }
-    //}
-}
+//function radar(i,j){
+//    var n,count;
+//
+//    ew(i,j);
+//    sn(i,j);
+//    es_wn(i,j);
+//    en_ws(i,j);
+//
+//    function isWin(c){
+//        if(c>=5){
+//            console.log('win');
+//        }
+//    }
+//    function ew(i,j){
+//        count=1;
+//        for(n=1;n<5;n++){
+//            if(i+n<15){
+//                if(chessBoard[i][j]==chessBoard[i+n][j]){
+//                    count++;
+//                }else{
+//                    break;
+//                }
+//            }
+//        }
+//        for(n=1;n<5;n++){
+//            if(i-n>=0){
+//                if(chessBoard[i][j]==chessBoard[i-n][j]){
+//                    count++;
+//                }else{
+//                    break;
+//                }
+//            }
+//        }
+//        isWin(count);
+//    }
+//    function sn(i,j){
+//        count=1;
+//        for(n=1;n<5;n++){
+//            if(j+n<15){
+//                if(chessBoard[i][j]==chessBoard[i][j+n]){
+//                    count++;
+//                }else{
+//                    break;
+//                }
+//            }
+//        }
+//        for(n=1;n<5;n++){
+//            if(j-n>=0){
+//                if(chessBoard[i][j]==chessBoard[i][j-n]){
+//                    count++;
+//                }else{
+//                    break;
+//                }
+//            }
+//        }
+//        isWin(count);
+//    }
+//    function es_wn(i,j){
+//        count=1;
+//        for(n=1;n<5;n++){
+//            if(i+n<15&&j+n<15){
+//                if(chessBoard[i][j]==chessBoard[i+n][j+n]){
+//                    count++;
+//                }else{
+//                    break;
+//                }
+//            }
+//        }
+//        for(n=1;n<5;n++){
+//            if(i-n>=0&&j-n>=0){
+//                if(chessBoard[i][j]==chessBoard[i-n][j-n]){
+//                    count++;
+//                }else{
+//                    break;
+//                }
+//            }
+//        }
+//        isWin(count);
+//    }
+//    function en_ws(i,j){
+//        count=1;
+//        for(n=1;n<5;n++){
+//            if(i+n<15&&j-n>=0){
+//                if(chessBoard[i][j]==chessBoard[i+n][j-n]){
+//                    count++;
+//                }else{
+//                    break;
+//                }
+//            }
+//        }
+//        for(n=1;n<5;n++){
+//            if(i-n>=0&&j+n<15){
+//                if(chessBoard[i][j]==chessBoard[i-n][j+n]){
+//                    count++;
+//                }else{
+//                    break;
+//                }
+//            }
+//        }
+//        console.log((me?'黑':'白')+'/'+count);
+//        isWin(count);
+//    }
+//}
